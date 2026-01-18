@@ -1,0 +1,20 @@
+form,
+fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+fieldset {
+  border: none;
+
+  div {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+
+    mat-form-field {
+      flex-basis: 100%;
+    }
+  }
+}

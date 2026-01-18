@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "owse": {
+    "inner-calms": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -29,9 +29,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
             "production": {
@@ -61,10 +59,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "owse:build:production"
+              "buildTarget": "inner-calms:build:production"
             },
             "development": {
-              "buildTarget": "owse:build:development"
+              "buildTarget": "inner-calms:build:development"
             }
           },
           "defaultConfiguration": "development"

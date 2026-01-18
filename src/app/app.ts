@@ -1,12 +1,12 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core'
+import { MatCardModule } from '@angular/material/card'
+import { ThemePickerComponent } from './components/theme-picker/theme-picker.component'
+import { SaveEditorComponent } from './components/save-editor/save-editor.component'
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [MatCardModule, ThemePickerComponent, SaveEditorComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
-export class App {
-  protected readonly title = signal('owse');
-}
+export class App {}
