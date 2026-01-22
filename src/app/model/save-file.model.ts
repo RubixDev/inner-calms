@@ -79,6 +79,7 @@ export const SaveFile = z.object({
   shipLogFactSaves: z.record(ShipLogFactKey, ShipLogFactSave),
   newlyRevealedFactIDs: z.array(z.string()),
   lastDeathType: z.enum(DeathType),
+  // TODO: make optional values accept null
   burnedMarshmallowEaten: z.int().default(0),
   fullTimeloops: z.int().nonnegative().default(0),
   perfectMarshmallowsEaten: z.int().nonnegative().default(0),

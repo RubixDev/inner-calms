@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon'
   imports: [MatButtonToggleModule, FormsModule, MatIconModule],
   templateUrl: './theme-picker.component.html',
   styleUrl: './theme-picker.component.scss',
+  standalone: true,
 })
 export class ThemePickerComponent {
   readonly value = signal(window.localStorage.getItem('theme') ?? 'light dark')

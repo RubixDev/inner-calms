@@ -11,14 +11,16 @@
 
 <form [formGroup]="form" (ngSubmit)="saveFile()">
   <mat-form-field>
-    <mat-label><code>loopCount</code></mat-label>
+    <mat-label>Number of experienced timeloops <app-code-hint msg="loopCount" /></mat-label>
     <input matInput formControlName="loopCount" type="number" step="1" />
   </mat-form-field>
 
   <mat-accordion multi>
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title><code>knownFrequencies</code></mat-panel-title>
+        <mat-panel-title
+          >Discovered frequencies <app-code-hint msg="knownFrequencies"
+        /></mat-panel-title>
       </mat-expansion-panel-header>
 
       <fieldset formArrayName="knownFrequencies">
@@ -26,19 +28,18 @@
           _ of knownFrequencies.controls.slice(0, vanillaFrequencies.length);
           track vanillaFrequencies[$index][0]
         ) {
-          <mat-slide-toggle [formControlName]="$index"
-            >{{ vanillaFrequencies[$index][0] }}
-            <span class="hint"
-              >{{ vanillaFrequencies[$index][1] }} ({{ $index }})</span
-            ></mat-slide-toggle
-          >
+          <mat-slide-toggle [formControlName]="$index">
+            {{ vanillaFrequencies[$index][0] }}
+            <span class="hint">{{ vanillaFrequencies[$index][1] }}</span>
+            <app-code-hint msg="{{ $index }}" />
+          </mat-slide-toggle>
         }
         @for (_ of knownFrequencies.controls.slice(vanillaFrequencies.length); track $index) {
           <div>
-            <mat-slide-toggle [formControlName]="$index + vanillaFrequencies.length"
-              >Custom Frequency
-              <span class="hint">({{ $index + vanillaFrequencies.length }})</span></mat-slide-toggle
-            >
+            <mat-slide-toggle [formControlName]="$index + vanillaFrequencies.length">
+              Custom Frequency
+              <app-code-hint msg="{{ $index + vanillaFrequencies.length }}" />
+            </mat-slide-toggle>
             <button
               type="button"
               matIconButton
@@ -61,16 +62,16 @@
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title><code>knownSignals</code></mat-panel-title>
+        <mat-panel-title>Discovered signals <app-code-hint msg="knownSignals" /></mat-panel-title>
       </mat-expansion-panel-header>
 
       <fieldset formGroupName="knownSignals">
         @for (key of Object.keys(knownSignals.controls); track key) {
           <div>
             <mat-slide-toggle [formControlName]="key">
-              @if (SignalName[Number(key)]; as name) {
-                {{ name }}
-                <span class="hint">({{ key }})</span>
+              @if (SignalName[Number(key)]; as signalName) {
+                {{ signalName }}
+                <app-code-hint msg="{{ key }}" />
               } @else {
                 {{ key }}
               }
@@ -94,8 +95,8 @@
             <mat-autocomplete #newSignalAutocomplete="matAutocomplete">
               @for (option of (filteredSignals$ | async) ?? []; track option) {
                 <mat-option [value]="option">
-                  @if (SignalName[Number(option)]; as name) {
-                    {{ name }}
+                  @if (SignalName[Number(option)]; as signalName) {
+                    {{ signalName }}
                     <span class="hint">({{ option }})</span>
                   } @else {
                     {{ option }}
@@ -123,17 +124,19 @@
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title><code>dictConditions</code></mat-panel-title>
+        <mat-panel-title
+          >Persistent conditions <app-code-hint msg="dictConditions"
+        /></mat-panel-title>
       </mat-expansion-panel-header>
 
       <fieldset formGroupName="dictConditions">
         @for (key of Object.keys(dictConditions.controls); track key) {
           <div>
             <mat-slide-toggle [formControlName]="key">
-              @let info = KnownConditions[key] ?? [Origin.UNKNOWN, null];
+              @let info = KnownConditions.get(key) ?? [Origin.UNKNOWN, null];
               @if (info[1] !== null) {
                 {{ info[1] }}
-                <span class="hint">({{ key }})</span>
+                <app-code-hint msg="{{ key }}" />
               } @else {
                 {{ key }}
               }
@@ -182,7 +185,7 @@
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title><code>shipLogFactSaves</code></mat-panel-title>
+        <mat-panel-title>Ship Log <app-code-hint msg="shipLogFactSaves" /></mat-panel-title>
       </mat-expansion-panel-header>
 
       hi
@@ -190,7 +193,9 @@
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title><code>newlyRevealedFactIDs</code></mat-panel-title>
+        <mat-panel-title
+          >New Ship Log facts <app-code-hint msg="newlyRevealedFactIDs"
+        /></mat-panel-title>
       </mat-expansion-panel-header>
 
       <fieldset formArrayName="newlyRevealedFactIDs">
@@ -228,57 +233,68 @@
   </mat-accordion>
 
   <mat-form-field>
-    <mat-label><code>lastDeathType</code></mat-label>
+    <mat-label>Last reason of death <app-code-hint msg="lastDeathType" /></mat-label>
     <mat-select formControlName="lastDeathType">
       @for (deathType of deathTypes; track deathType) {
-        <mat-option [value]="deathType.value"
-          >{{ deathType.name }} <span class="hint">({{ deathType.value }})</span></mat-option
-        >
+        <mat-option [value]="deathType.value">
+          {{ deathType.name }}<app-code-hint msg="{{ deathType.value }}" />
+        </mat-option>
       }
     </mat-select>
   </mat-form-field>
 
   <mat-form-field>
-    <mat-label><code>burnedMarshmallowEaten</code></mat-label>
+    <mat-label
+      >Number of burned marshmallows eaten <app-code-hint msg="burnedMarshmallowEaten"
+    /></mat-label>
     <input matInput formControlName="burnedMarshmallowEaten" type="number" step="1" />
   </mat-form-field>
 
   <mat-form-field>
-    <mat-label><code>fullTimeloops</code></mat-label>
+    <mat-label>Number of fully completed timeloops <app-code-hint msg="fullTimeloops" /></mat-label>
     <input matInput formControlName="fullTimeloops" type="number" step="1" min="0" />
   </mat-form-field>
 
   <mat-form-field>
-    <mat-label><code>perfectMarshmallowsEaten</code></mat-label>
+    <mat-label
+      >Number of perfect marshmallows eaten <app-code-hint msg="perfectMarshmallowsEaten"
+    /></mat-label>
     <input matInput formControlName="perfectMarshmallowsEaten" type="number" step="1" min="0" />
   </mat-form-field>
 
-  <mat-slide-toggle formControlName="warpedToTheEye"><code>warpedToTheEye</code></mat-slide-toggle>
+  <mat-slide-toggle formControlName="warpedToTheEye">
+    Is at the Eye of the Universe
+    <app-code-hint msg="warpedToTheEye" />
+  </mat-slide-toggle>
 
   <mat-form-field>
-    <mat-label><code>secondsRemainingOnWarp</code></mat-label>
+    <mat-label
+      >Seconds remaining in loop after warp to the Eye <app-code-hint msg="secondsRemainingOnWarp"
+    /></mat-label>
     <input matInput formControlName="secondsRemainingOnWarp" type="number" step="0.1" />
   </mat-form-field>
 
   <mat-form-field>
-    <mat-label><code>loopCountOnParadox</code></mat-label>
+    <mat-label
+      >Number of loops in a paradox state <app-code-hint msg="loopCountOnParadox"
+    /></mat-label>
     <input matInput formControlName="loopCountOnParadox" type="number" step="1" />
   </mat-form-field>
 
   <!-- TODO: multiselect with StartupPopups -->
   <mat-form-field>
-    <mat-label><code>shownPopups</code></mat-label>
+    <mat-label>Startup popups that have been shown <app-code-hint msg="shownPopups" /></mat-label>
     <input matInput formControlName="shownPopups" type="number" step="1" />
   </mat-form-field>
 
   <mat-form-field>
-    <mat-label><code>version</code></mat-label>
+    <mat-label>Version number <app-code-hint msg="version" /></mat-label>
     <input matInput formControlName="version" type="text" />
   </mat-form-field>
 
-  <mat-slide-toggle formControlName="ps5Activity_canResumeExpedition"
-    ><code>ps5Activity_canResumeExpedition</code></mat-slide-toggle
-  >
+  <mat-slide-toggle formControlName="ps5Activity_canResumeExpedition">
+    <code>ps5Activity_canResumeExpedition</code>
+  </mat-slide-toggle>
 
   <mat-accordion multi>
     <mat-expansion-panel>
@@ -314,9 +330,10 @@
     </mat-expansion-panel>
   </mat-accordion>
 
-  <mat-slide-toggle formControlName="didRunInitGammaSetting"
-    ><code>didRunInitGammaSetting</code></mat-slide-toggle
-  >
+  <mat-slide-toggle formControlName="didRunInitGammaSetting">
+    Has configured initial gamma
+    <app-code-hint msg="didRunInitGammaSetting" />
+  </mat-slide-toggle>
 
   <button type="submit" matButton="filled" [disabled]="!form.valid">
     Export File<mat-icon>download</mat-icon>

@@ -8,5 +8,6 @@ import { SaveEditorComponent } from './components/save-editor/save-editor.compon
   imports: [MatCardModule, ThemePickerComponent, SaveEditorComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
+  standalone: true,
 })
 export class App {}

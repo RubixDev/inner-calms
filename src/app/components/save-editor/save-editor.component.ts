@@ -40,6 +40,7 @@ import { AsyncPipe } from '@angular/common'
 import { KnownConditions } from '../../model/persistent-conditions.model'
 import { Origin } from '../../model/origin.model'
 import { toObservable } from '@angular/core/rxjs-interop'
+import { CodeHintComponent } from '../code-hint/code-hint.component'
 
 type ControlConfigs<T> = {
   [K in keyof T]: T[K] | ControlConfig<T[K]> | AbstractControl<T[K]>
@@ -59,9 +60,11 @@ type ControlConfigs<T> = {
     MatSlideToggleModule,
     ReactiveFormsModule,
     FormsModule,
+    CodeHintComponent,
   ],
   templateUrl: './save-editor.component.html',
   styleUrl: './save-editor.component.scss',
+  standalone: true,
 })
 export class SaveEditorComponent {
   protected readonly fb = inject(FormBuilder)
@@ -265,7 +268,7 @@ export class SaveEditorComponent {
     ['Deep Space Radio'],
   ]
 
-  protected readonly KnownConditions = KnownConditions as Record<string, [Origin, string | null]>
+  protected readonly KnownConditions = new Map(Object.entries(KnownConditions))
   protected readonly Number = Number
   protected readonly Object = Object
   protected readonly Origin = Origin
