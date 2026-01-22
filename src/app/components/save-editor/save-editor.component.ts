@@ -1,5 +1,11 @@
 import { Component, inject, signal } from '@angular/core'
-import { DeathType, SaveFile, SaveFileJson, StartupPopups } from '../../model/save-file.model'
+import {
+  DeathType,
+  SaveFile,
+  SaveFileJson,
+  SignalName,
+  StartupPopups,
+} from '../../model/save-file.model'
 import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
 import {
@@ -21,7 +27,15 @@ import { MatExpansionModule } from '@angular/material/expansion'
 import { saveAs } from 'file-saver'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { ShipLogFacts } from '../../model/ship-log.model'
-import { combineLatest, combineLatestWith, distinctUntilChanged, filter, map, pairwise, startWith, tap } from 'rxjs'
+import {
+  combineLatest,
+  combineLatestWith,
+  distinctUntilChanged,
+  filter,
+  map,
+  pairwise,
+  startWith,
+} from 'rxjs'
 import { AsyncPipe } from '@angular/common'
 import { KnownConditions } from '../../model/persistent-conditions.model'
 import { Origin } from '../../model/origin.model'
@@ -63,7 +77,13 @@ export class SaveEditorComponent {
       this.fb.nonNullable.control(false),
       this.fb.nonNullable.control(false),
     ]),
-    knownSignals: [{}, Validators.required],
+    knownSignals: this.fb.nonNullable.record<boolean>(
+      Object.fromEntries(
+        Object.values(SignalName)
+          .filter(v => typeof v !== 'string')
+          .map(key => [key, false]),
+      ),
+    ) as AbstractControl<Record<number, boolean>>,
     // TODO: is there a way to do this type safely?
     dictConditions: this.fb.nonNullable.record<boolean>(
       Object.fromEntries(Object.keys(KnownConditions).map(key => [key, false])),
@@ -112,19 +132,47 @@ export class SaveEditorComponent {
     ),
   )
 
+  get knownSignals() {
+    return this.form.get('knownSignals') as FormRecord<FormControl<boolean>>
+  }
+
+  protected readonly newSignal = signal('')
+  protected readonly currentKnownSignals$ = this.knownSignals.valueChanges.pipe(
+    startWith(this.knownSignals.value),
+    map(v => Object.keys(v)),
+    distinctUntilChanged(),
+  )
+  protected readonly filteredSignals$ = combineLatest([
+    toObservable(this.newSignal),
+    this.currentKnownSignals$,
+  ]).pipe(
+    map(([newSignal, signals]) =>
+      // suggest matching known signals that don't have controls yet
+      Object.values(SignalName).filter(
+        key =>
+          typeof key !== 'string' &&
+          key.toString().toLowerCase().includes(newSignal.toString().toLowerCase()) &&
+          !signals.includes(key.toString()),
+      ),
+    ),
+  )
+
   get newlyRevealedFactIDs() {
     return this.form.get('newlyRevealedFactIDs') as FormArray<FormControl<string>>
   }
 
-  protected readonly currentFactIDs$ = () => this.newlyRevealedFactIDs.valueChanges.pipe(
-    startWith(this.newlyRevealedFactIDs.value),
-    distinctUntilChanged(),
-  )
+  protected readonly currentFactIDs$ = () =>
+    this.newlyRevealedFactIDs.valueChanges.pipe(
+      startWith(this.newlyRevealedFactIDs.value),
+      distinctUntilChanged(),
+    )
   protected readonly filteredFactIDs$ = this.newlyRevealedFactIDs.valueChanges.pipe(
-    startWith([]),
+    startWith(this.newlyRevealedFactIDs.value),
     pairwise(),
-    // only emit when length changes
+    // recreate observables every time the length changes
     filter(([prev, curr]) => prev.length !== curr.length),
+    // but always immediately start
+    startWith(undefined),
     map(() =>
       this.newlyRevealedFactIDs.controls.map(control =>
         control.valueChanges.pipe(
@@ -132,8 +180,8 @@ export class SaveEditorComponent {
           combineLatestWith(this.currentFactIDs$()),
           map(([value, ids]) =>
             // suggest matching known ship log fact ids that don't have controls yet
-            Object.keys(ShipLogFacts).filter(option =>
-              option.toLowerCase().includes(value.toLowerCase()) && !ids.includes(option),
+            Object.keys(ShipLogFacts).filter(
+              option => option.toLowerCase().includes(value.toLowerCase()) && !ids.includes(option),
             ),
           ),
         ),
@@ -217,7 +265,9 @@ export class SaveEditorComponent {
     ['Deep Space Radio'],
   ]
 
-  protected readonly Object = Object
   protected readonly KnownConditions = KnownConditions as Record<string, [Origin, string | null]>
+  protected readonly Number = Number
+  protected readonly Object = Object
   protected readonly Origin = Origin
+  protected readonly SignalName = SignalName
 }
