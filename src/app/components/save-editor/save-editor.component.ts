@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core'
+import { Component, inject, signal } from '@angular/core'
 import { DeathType, SaveFile, SaveFileJson, StartupPopups } from '../../model/save-file.model'
 import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
@@ -8,6 +8,8 @@ import {
   FormArray,
   FormBuilder,
   FormControl,
+  FormRecord,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms'
@@ -19,8 +21,11 @@ import { MatExpansionModule } from '@angular/material/expansion'
 import { saveAs } from 'file-saver'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { ShipLogFacts } from '../../model/ship-log.model'
-import { filter, map, pairwise, startWith } from 'rxjs'
+import { combineLatest, combineLatestWith, distinctUntilChanged, filter, map, pairwise, startWith, tap } from 'rxjs'
 import { AsyncPipe } from '@angular/common'
+import { KnownConditions } from '../../model/persistent-conditions.model'
+import { Origin } from '../../model/origin.model'
+import { toObservable } from '@angular/core/rxjs-interop'
 
 type ControlConfigs<T> = {
   [K in keyof T]: T[K] | ControlConfig<T[K]> | AbstractControl<T[K]>
@@ -39,6 +44,7 @@ type ControlConfigs<T> = {
     MatSelectModule,
     MatSlideToggleModule,
     ReactiveFormsModule,
+    FormsModule,
   ],
   templateUrl: './save-editor.component.html',
   styleUrl: './save-editor.component.scss',
@@ -58,7 +64,10 @@ export class SaveEditorComponent {
       this.fb.nonNullable.control(false),
     ]),
     knownSignals: [{}, Validators.required],
-    dictConditions: [{}, Validators.required],
+    // TODO: is there a way to do this type safely?
+    dictConditions: this.fb.nonNullable.record<boolean>(
+      Object.fromEntries(Object.keys(KnownConditions).map(key => [key, false])),
+    ) as AbstractControl<Record<string, boolean>>,
     shipLogFactSaves: [{}, Validators.required],
     newlyRevealedFactIDs: this.fb.nonNullable.array<string>([]),
     lastDeathType: [DeathType.Default, Validators.required],
@@ -75,21 +84,43 @@ export class SaveEditorComponent {
     didRunInitGammaSetting: [true],
   })
 
+  _ = this.form.valueChanges.subscribe(v => console.log(v))
+
   get knownFrequencies() {
     return this.form.get('knownFrequencies') as FormArray<FormControl<boolean>>
   }
+
+  get dictConditions() {
+    return this.form.get('dictConditions') as FormRecord<FormControl<boolean>>
+  }
+
+  protected readonly newCondition = signal('')
+  protected readonly currentConditionKeys$ = this.dictConditions.valueChanges.pipe(
+    startWith(this.dictConditions.value),
+    map(v => Object.keys(v)),
+    distinctUntilChanged(),
+  )
+  protected readonly filteredConditions$ = combineLatest([
+    toObservable(this.newCondition),
+    this.currentConditionKeys$,
+  ]).pipe(
+    map(([newCondition, keys]) =>
+      // suggest matching known condition keys that don't have controls yet
+      Object.keys(KnownConditions).filter(
+        key => key.toLowerCase().includes(newCondition.toLowerCase()) && !keys.includes(key),
+      ),
+    ),
+  )
 
   get newlyRevealedFactIDs() {
     return this.form.get('newlyRevealedFactIDs') as FormArray<FormControl<string>>
   }
 
-  get ps5Activity_availableShipLogCards() {
-    return this.form.get('ps5Activity_availableShipLogCards') as FormArray<FormControl<string>>
-  }
-
-  _ = this.form.valueChanges.subscribe(v => console.log(v))
-
-  protected readonly filteredFactIDs = this.newlyRevealedFactIDs.valueChanges.pipe(
+  protected readonly currentFactIDs$ = () => this.newlyRevealedFactIDs.valueChanges.pipe(
+    startWith(this.newlyRevealedFactIDs.value),
+    distinctUntilChanged(),
+  )
+  protected readonly filteredFactIDs$ = this.newlyRevealedFactIDs.valueChanges.pipe(
     startWith([]),
     pairwise(),
     // only emit when length changes
@@ -98,15 +129,21 @@ export class SaveEditorComponent {
       this.newlyRevealedFactIDs.controls.map(control =>
         control.valueChanges.pipe(
           startWith(control.value),
-          map(value =>
+          combineLatestWith(this.currentFactIDs$()),
+          map(([value, ids]) =>
+            // suggest matching known ship log fact ids that don't have controls yet
             Object.keys(ShipLogFacts).filter(option =>
-              option.toLowerCase().includes(value.toLowerCase()),
+              option.toLowerCase().includes(value.toLowerCase()) && !ids.includes(option),
             ),
           ),
         ),
       ),
     ),
   )
+
+  get ps5Activity_availableShipLogCards() {
+    return this.form.get('ps5Activity_availableShipLogCards') as FormArray<FormControl<string>>
+  }
 
   // TODO: proper error handling
   // TODO: ask for confirmation
@@ -117,6 +154,9 @@ export class SaveEditorComponent {
     this.knownFrequencies.clear({ emitEvent: false })
     this.newlyRevealedFactIDs.clear({ emitEvent: false })
     this.ps5Activity_availableShipLogCards.clear({ emitEvent: false })
+
+    // reset all persistent conditions
+    Object.values(this.dictConditions.controls).forEach(c => c.setValue(false))
 
     const files = (event.target as HTMLInputElement).files
     if (files === null) return
@@ -135,7 +175,7 @@ export class SaveEditorComponent {
         emitEvent: false,
       })
 
-    this.form.setValue(newValue)
+    this.form.patchValue(newValue)
   }
 
   protected async saveFile() {
@@ -176,4 +216,8 @@ export class SaveEditorComponent {
     ['Hide and Seek'],
     ['Deep Space Radio'],
   ]
+
+  protected readonly Object = Object
+  protected readonly KnownConditions = KnownConditions as Record<string, [Origin, string | null]>
+  protected readonly Origin = Origin
 }

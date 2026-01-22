@@ -12,8 +12,12 @@ fieldset {
     display: flex;
     gap: 1rem;
     align-items: baseline;
+    &:has(> mat-slide-toggle) {
+      align-items: center;
+    }
 
-    mat-form-field {
+    mat-form-field,
+    mat-slide-toggle {
       flex-basis: 100%;
     }
   }
