@@ -263,7 +263,7 @@ export class SaveEditorComponent {
     ['Outer Wilds Ventures'],
     ['Quantum Fluctuations'],
     ['Distress Beacon'],
-    ['Warp Code', '(unused)'],
+    ['White Hole', '(unused)'],
     ['Hide and Seek'],
     ['Deep Space Radio'],
   ]
