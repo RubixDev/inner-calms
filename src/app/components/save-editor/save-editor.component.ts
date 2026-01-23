@@ -139,7 +139,7 @@ export class SaveEditorComponent {
     return this.form.get('knownSignals') as FormRecord<FormControl<boolean>>
   }
 
-  protected readonly newSignal = signal('')
+  protected readonly newSignal = signal<number | null>(null)
   protected readonly currentKnownSignals$ = this.knownSignals.valueChanges.pipe(
     startWith(this.knownSignals.value),
     map(v => Object.keys(v)),
@@ -150,11 +150,12 @@ export class SaveEditorComponent {
     this.currentKnownSignals$,
   ]).pipe(
     map(([newSignal, signals]) =>
-      // suggest matching known signals that don't have controls yet
+      // suggest matching known signal ids that don't have controls yet
+      // TODO: maybe also filter by name
       Object.values(SignalName).filter(
         key =>
           typeof key !== 'string' &&
-          key.toString().toLowerCase().includes(newSignal.toString().toLowerCase()) &&
+          key.toString().includes(newSignal?.toString() ?? '') &&
           !signals.includes(key.toString()),
       ),
     ),

@@ -89,7 +89,7 @@
               matInput
               [(ngModel)]="newSignal"
               [ngModelOptions]="{ standalone: true }"
-              type="text"
+              type="number"
               [matAutocomplete]="newSignalAutocomplete"
             />
             <mat-autocomplete #newSignalAutocomplete="matAutocomplete">
@@ -109,11 +109,12 @@
             type="button"
             matButton
             [disabled]="
-              newSignal() === '' ||
-              (this.currentKnownSignals$ | async)?.includes(newSignal().toString())
+              newSignal() === null ||
+              (this.currentKnownSignals$ | async)?.includes(newSignal()?.toString() ?? '')
             "
             (click)="
-              knownSignals.addControl(newSignal(), fb.nonNullable.control(false)); newSignal.set('')
+              knownSignals.addControl(newSignal()!.toString(), fb.nonNullable.control(false));
+              newSignal.set(null)
             "
           >
             Add<mat-icon>add</mat-icon>
