@@ -1,0 +1,20 @@
+<fieldset [formGroup]="form()">
+  <!-- <mat-form-field> -->
+  <!-- <mat-label>ID</mat-label> -->
+  <!-- <input matInput formControlName="id" type="text" /> -->
+  <!-- </mat-form-field> -->
+
+  <mat-form-field>
+    <mat-label>Reveal order <app-code-hint msg="revealOrder" /></mat-label>
+    <input matInput formControlName="revealOrder" type="number" step="1" />
+  </mat-form-field>
+
+  <mat-slide-toggle formControlName="newlyRevealed">
+    Newly revealed <app-code-hint msg="newlyRevealed" />
+  </mat-slide-toggle>
+
+  <mat-slide-toggle formControlName="read">Read <app-code-hint msg="read" /></mat-slide-toggle>
+</fieldset>
+<button type="button" matButton="outlined" color="warn" (click)="delete.emit()">
+  Delete <mat-icon>delete</mat-icon>
+</button>

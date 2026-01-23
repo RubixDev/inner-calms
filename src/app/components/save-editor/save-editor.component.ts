@@ -3,6 +3,7 @@ import {
   DeathType,
   SaveFile,
   SaveFileJson,
+  ShipLogFactSave,
   SignalName,
   StartupPopups,
 } from '../../model/save-file.model'
@@ -10,10 +11,10 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
 import {
   AbstractControl,
-  ControlConfig,
   FormArray,
   FormBuilder,
   FormControl,
+  FormGroup,
   FormRecord,
   FormsModule,
   ReactiveFormsModule,
@@ -41,15 +42,15 @@ import { KnownConditions } from '../../model/persistent-conditions.model'
 import { Origin } from '../../model/origin.model'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { CodeHintComponent } from '../code-hint/code-hint.component'
-
-type ControlConfigs<T> = {
-  [K in keyof T]: T[K] | ControlConfig<T[K]> | AbstractControl<T[K]>
-}
+import { ShipLogEditorComponent } from '../ship-log-editor/ship-log-editor.component'
+import { ControlConfigs, WithFormControls } from '../../util'
 
 @Component({
   selector: 'app-save-editor',
   imports: [
     AsyncPipe,
+    CodeHintComponent,
+    FormsModule,
     MatAutocompleteModule,
     MatButtonModule,
     MatExpansionModule,
@@ -59,8 +60,7 @@ type ControlConfigs<T> = {
     MatSelectModule,
     MatSlideToggleModule,
     ReactiveFormsModule,
-    FormsModule,
-    CodeHintComponent,
+    ShipLogEditorComponent,
   ],
   templateUrl: './save-editor.component.html',
   styleUrl: './save-editor.component.scss',
@@ -91,7 +91,19 @@ export class SaveEditorComponent {
     dictConditions: this.fb.nonNullable.record<boolean>(
       Object.fromEntries(Object.keys(KnownConditions).map(key => [key, false])),
     ) as AbstractControl<Record<string, boolean>>,
-    shipLogFactSaves: [{}, Validators.required],
+    shipLogFactSaves: this.fb.nonNullable.record(
+      Object.fromEntries(
+        Object.keys(ShipLogFacts).map(key => [
+          key,
+          this.fb.nonNullable.group<ControlConfigs<ShipLogFactSave>>({
+            id: [key, Validators.required],
+            revealOrder: [-1, Validators.required],
+            newlyRevealed: [false, Validators.required],
+            read: [false, Validators.required],
+          }),
+        ]),
+      ),
+    ) as AbstractControl<Record<string, ShipLogFactSave>>,
     newlyRevealedFactIDs: this.fb.nonNullable.array<string>([]),
     lastDeathType: [DeathType.Default, Validators.required],
     burnedMarshmallowEaten: [0],
@@ -115,6 +127,12 @@ export class SaveEditorComponent {
 
   get dictConditions() {
     return this.form.get('dictConditions') as FormRecord<FormControl<boolean>>
+  }
+
+  get shipLogFactSaves() {
+    return this.form.get('shipLogFactSaves') as FormRecord<
+      FormGroup<WithFormControls<ShipLogFactSave>>
+    >
   }
 
   protected readonly newCondition = signal('')

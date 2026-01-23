@@ -69,3 +69,42 @@ body {
   font-size: 0.8em;
   opacity: 0.7;
 }
+
+form,
+fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+fieldset {
+  border: none;
+
+  & > div {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+    &:has(> mat-slide-toggle) {
+      align-items: center;
+    }
+
+    mat-form-field,
+    mat-slide-toggle {
+      flex-basis: 100%;
+    }
+  }
+}
+
+button[matButton='outlined'][color='warn'] {
+  @include mat.button-overrides(
+    (
+      outlined-label-text-color: var(--mat-sys-error),
+      outlined-ripple-color: color-mix(
+          in srgb,
+          var(--mat-sys-error) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%),
+          transparent
+        ),
+      outlined-state-layer-color: var(--mat-sys-error),
+    )
+  );
+}

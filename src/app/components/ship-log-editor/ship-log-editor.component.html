@@ -1,0 +1,36 @@
+<fieldset [formGroup]="form()">
+  <mat-accordion multi>
+    @for (key of Object.keys(form().controls); track key) {
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <code>{{ key }}</code>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <app-ship-log-fact-editor [form]="getFormGroup(key)" (delete)="form().removeControl(key)" />
+      </mat-expansion-panel>
+    }
+  </mat-accordion>
+
+  <div>
+    <mat-form-field>
+      <mat-label>New Fact</mat-label>
+      <input
+        matInput
+        [(ngModel)]="newFact"
+        [ngModelOptions]="{ standalone: true }"
+        type="text"
+        [matAutocomplete]="newFactAutocomplete"
+      />
+      <mat-autocomplete #newFactAutocomplete="matAutocomplete">
+        @for (option of (filteredFacts$ | async) ?? []; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+    <button type="button" matButton [disabled]="addFactDisabled$ | async" (click)="addFact()">
+      Add<mat-icon>add</mat-icon>
+    </button>
+  </div>
+</fieldset>
