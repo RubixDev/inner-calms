@@ -1,0 +1,35 @@
+<fieldset [formGroup]="form()">
+  @for (key of Object.keys(form().controls); track key) {
+    <div>
+      <mat-slide-toggle [formControlName]="key">
+        @if (SignalName[Number(key)]; as signalName) {
+          {{ signalName }}
+          <app-code-hint msg="{{ key }}" />
+        } @else {
+          {{ key }}
+        }
+      </mat-slide-toggle>
+      <button type="button" matIconButton (click)="form().removeControl(key)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  }
+
+  <app-add-to-record
+    label="New Signal"
+    type="number"
+    [validate]="isValid"
+    [suggestions]="signalNameKeys"
+    [form]="form()"
+    (add)="form().addControl($event, fb.nonNullable.control(false))"
+  >
+    <ng-template let-option>
+      @if (SignalName[Number(option)]; as signalName) {
+        {{ signalName }}
+        <span class="hint">({{ option }})</span>
+      } @else {
+        {{ option }}
+      }
+    </ng-template>
+  </app-add-to-record>
+</fieldset>

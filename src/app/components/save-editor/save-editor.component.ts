@@ -44,6 +44,7 @@ import { toObservable } from '@angular/core/rxjs-interop'
 import { CodeHintComponent } from '../code-hint/code-hint.component'
 import { ShipLogEditorComponent } from '../ship-log-editor/ship-log-editor.component'
 import { ControlConfigs, WithFormControls } from '../../util'
+import { KnownSignalsEditorComponent } from '../known-signals-editor/known-signals-editor.component'
 
 @Component({
   selector: 'app-save-editor',
@@ -61,6 +62,7 @@ import { ControlConfigs, WithFormControls } from '../../util'
     MatSlideToggleModule,
     ReactiveFormsModule,
     ShipLogEditorComponent,
+    KnownSignalsEditorComponent,
   ],
   templateUrl: './save-editor.component.html',
   styleUrl: './save-editor.component.scss',
@@ -155,28 +157,6 @@ export class SaveEditorComponent {
   get knownSignals() {
     return this.form.get('knownSignals') as FormRecord<FormControl<boolean>>
   }
-
-  protected readonly newSignal = signal<number | null>(null)
-  protected readonly currentKnownSignals$ = this.knownSignals.valueChanges.pipe(
-    startWith(this.knownSignals.value),
-    map(v => Object.keys(v)),
-    distinctUntilChanged(),
-  )
-  protected readonly filteredSignals$ = combineLatest([
-    toObservable(this.newSignal),
-    this.currentKnownSignals$,
-  ]).pipe(
-    map(([newSignal, signals]) =>
-      // suggest matching known signal ids that don't have controls yet
-      // TODO: maybe also filter by name
-      Object.values(SignalName).filter(
-        key =>
-          typeof key !== 'string' &&
-          key.toString().includes(newSignal?.toString() ?? '') &&
-          !signals.includes(key.toString()),
-      ),
-    ),
-  )
 
   get newlyRevealedFactIDs() {
     return this.form.get('newlyRevealedFactIDs') as FormArray<FormControl<string>>
@@ -287,8 +267,6 @@ export class SaveEditorComponent {
   ]
 
   protected readonly KnownConditions = new Map(Object.entries(KnownConditions))
-  protected readonly Number = Number
   protected readonly Object = Object
   protected readonly Origin = Origin
-  protected readonly SignalName = SignalName
 }

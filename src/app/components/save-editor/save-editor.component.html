@@ -65,62 +65,7 @@
         <mat-panel-title>Discovered signals <app-code-hint msg="knownSignals" /></mat-panel-title>
       </mat-expansion-panel-header>
 
-      <fieldset formGroupName="knownSignals">
-        @for (key of Object.keys(knownSignals.controls); track key) {
-          <div>
-            <mat-slide-toggle [formControlName]="key">
-              @if (SignalName[Number(key)]; as signalName) {
-                {{ signalName }}
-                <app-code-hint msg="{{ key }}" />
-              } @else {
-                {{ key }}
-              }
-            </mat-slide-toggle>
-            <button type="button" matIconButton (click)="knownSignals.removeControl(key)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        }
-
-        <div>
-          <mat-form-field>
-            <mat-label>New Signal</mat-label>
-            <input
-              matInput
-              [(ngModel)]="newSignal"
-              [ngModelOptions]="{ standalone: true }"
-              type="number"
-              [matAutocomplete]="newSignalAutocomplete"
-            />
-            <mat-autocomplete #newSignalAutocomplete="matAutocomplete">
-              @for (option of (filteredSignals$ | async) ?? []; track option) {
-                <mat-option [value]="option">
-                  @if (SignalName[Number(option)]; as signalName) {
-                    {{ signalName }}
-                    <span class="hint">({{ option }})</span>
-                  } @else {
-                    {{ option }}
-                  }
-                </mat-option>
-              }
-            </mat-autocomplete>
-          </mat-form-field>
-          <button
-            type="button"
-            matButton
-            [disabled]="
-              newSignal() === null ||
-              (this.currentKnownSignals$ | async)?.includes(newSignal()?.toString() ?? '')
-            "
-            (click)="
-              knownSignals.addControl(newSignal()!.toString(), fb.nonNullable.control(false));
-              newSignal.set(null)
-            "
-          >
-            Add<mat-icon>add</mat-icon>
-          </button>
-        </div>
-      </fieldset>
+      <app-known-signals-editor [form]="knownSignals" />
     </mat-expansion-panel>
 
     <mat-expansion-panel>

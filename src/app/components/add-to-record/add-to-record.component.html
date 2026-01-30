@@ -1,9 +1,15 @@
+<ng-template #defaultTemplate let-option>
+  {{ option }}
+</ng-template>
+
 <mat-form-field>
   <mat-label>{{ label() }}</mat-label>
-  <input matInput [(ngModel)]="value" type="text" [matAutocomplete]="autocomplete" />
+  <input matInput [(ngModel)]="value" [type]="type()" [matAutocomplete]="autocomplete" />
   <mat-autocomplete #autocomplete="matAutocomplete">
     @for (option of (filteredSuggestions$ | async) ?? []; track option) {
-      <mat-option [value]="option">{{ option }}</mat-option>
+      <mat-option [value]="option">
+        <ng-container *ngTemplateOutlet="optionTemplate(); context: { $implicit: option }" />
+      </mat-option>
     }
   </mat-autocomplete>
 </mat-form-field>
