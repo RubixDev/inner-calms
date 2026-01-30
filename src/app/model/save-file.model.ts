@@ -58,8 +58,8 @@ export enum DeathType {
 export enum StartupPopups {
   None = 0,
   ResetInputs = 1 << 0,
-  ReducedFrights = 2 << 1,
-  NewExhibit = 4 << 2,
+  ReducedFrights = 1 << 1,
+  NewExhibit = 1 << 2,
 }
 
 export const ShipLogFactSave = z.object({

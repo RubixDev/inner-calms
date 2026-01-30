@@ -176,11 +176,11 @@
     <input matInput formControlName="loopCountOnParadox" type="number" step="1" />
   </mat-form-field>
 
-  <!-- TODO: multiselect with StartupPopups -->
-  <mat-form-field>
-    <mat-label>Startup popups that have been shown <app-code-hint msg="shownPopups" /></mat-label>
-    <input matInput formControlName="shownPopups" type="number" step="1" />
-  </mat-form-field>
+  <div>
+    Startup popups that have been shown <app-code-hint msg="shownPopups" />
+    <br />
+    <app-shown-popups-editor formControlName="shownPopups" />
+  </div>
 
   <mat-form-field>
     <mat-label>Version number <app-code-hint msg="version" /></mat-label>

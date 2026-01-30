@@ -1,0 +1,5 @@
+<mat-button-toggle-group multiple [formControl]="formControl">
+  @for (popup of startupPopups; track popup.value) {
+    <mat-button-toggle [value]="popup.value">{{ popup.name }}</mat-button-toggle>
+  }
+</mat-button-toggle-group>

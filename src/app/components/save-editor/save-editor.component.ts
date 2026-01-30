@@ -31,12 +31,12 @@ import { ShipLogFacts } from '../../model/ship-log.model'
 import { combineLatestWith, distinctUntilChanged, filter, map, pairwise, startWith } from 'rxjs'
 import { AsyncPipe } from '@angular/common'
 import { KnownConditions } from '../../model/persistent-conditions.model'
-import { Origin } from '../../model/origin.model'
 import { CodeHintComponent } from '../code-hint/code-hint.component'
 import { ShipLogEditorComponent } from '../ship-log-editor/ship-log-editor.component'
 import { ControlConfigs, WithFormControls } from '../../util'
 import { KnownSignalsEditorComponent } from '../known-signals-editor/known-signals-editor.component'
 import { PersistentConditionsEditorComponent } from '../persistent-conditions-editor/persistent-conditions-editor.component'
+import { ShownPopupsEditorComponent } from '../shown-popups-editor/shown-popups-editor.component'
 
 @Component({
   selector: 'app-save-editor',
@@ -56,6 +56,7 @@ import { PersistentConditionsEditorComponent } from '../persistent-conditions-ed
     PersistentConditionsEditorComponent,
     ReactiveFormsModule,
     ShipLogEditorComponent,
+    ShownPopupsEditorComponent,
   ],
   templateUrl: './save-editor.component.html',
   styleUrl: './save-editor.component.scss',
