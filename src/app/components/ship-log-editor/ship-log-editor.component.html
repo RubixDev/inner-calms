@@ -5,8 +5,11 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <code>{{ key }}</code>
-            &nbsp;<span class="hint">{{ ShipLogFacts.get(key) ?? Origin.UNKNOWN }}</span>
           </mat-panel-title>
+          <mat-panel-description>
+            <span class="hint">{{ ShipLogFacts.get(key) ?? Origin.UNKNOWN }}</span>
+            <mat-icon>{{ isRevealed(key) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+          </mat-panel-description>
         </mat-expansion-panel-header>
 
         <app-ship-log-fact-editor [form]="getFormGroup(key)" (delete)="form().removeControl(key)" />

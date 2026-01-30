@@ -67,6 +67,10 @@ export class ShipLogEditorComponent {
     )
   }
 
+  protected isRevealed(key: string): boolean {
+    return (this.getFormGroup(key).value.revealOrder ?? -1) >= 0
+  }
+
   protected readonly Object = Object
   protected readonly Origin = Origin
   protected readonly ShipLogFacts = new Map(Object.entries(ShipLogFacts))
