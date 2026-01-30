@@ -17,13 +17,14 @@ import { AsyncPipe } from '@angular/common'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
-import { combineLatest, distinctUntilChanged, map, startWith, switchMap } from 'rxjs'
-import { toObservable } from '@angular/core/rxjs-interop'
 import { ShipLogFacts } from '../../model/ship-log.model'
+import { AddToRecordComponent } from '../add-to-record/add-to-record.component'
+import { Origin } from '../../model/origin.model'
 
 @Component({
   selector: 'app-ship-log-editor',
   imports: [
+    AddToRecordComponent,
     AsyncPipe,
     FormsModule,
     MatAutocompleteModule,
@@ -44,42 +45,15 @@ export class ShipLogEditorComponent {
 
   readonly form = input.required<FormRecord<FormGroup<WithFormControls<ShipLogFactSave>>>>()
 
-  protected readonly newFact = signal('')
-
-  private readonly currentFactIDs$ = toObservable(this.form).pipe(
-    switchMap(form =>
-      form.valueChanges.pipe(
-        startWith(form.value),
-        map(v => Object.keys(v)),
-        distinctUntilChanged(),
-      ),
-    ),
-  )
-  protected readonly filteredFacts$ = combineLatest([
-    toObservable(this.newFact),
-    this.currentFactIDs$,
-  ]).pipe(
-    map(([newFact, ids]) =>
-      // suggest matching known ship log fact ids that don't have controls yet
-      Object.keys(ShipLogFacts).filter(
-        key => key.toLowerCase().includes(newFact.toLowerCase()) && !ids.includes(key),
-      ),
-    ),
-  )
-  protected readonly addFactDisabled$ = combineLatest([
-    toObservable(this.newFact),
-    this.currentFactIDs$,
-  ]).pipe(map(([newFact, ids]) => newFact === '' || ids.includes(newFact)))
-
   protected getFormGroup(key: string): FormGroup<WithFormControls<ShipLogFactSave>> {
     return this.form().get(key) as FormGroup<WithFormControls<ShipLogFactSave>>
   }
 
-  protected addFact() {
+  protected addFact(name: string) {
     this.form().addControl(
-      this.newFact(),
+      name,
       this.fb.nonNullable.group({
-        id: [this.newFact(), Validators.required],
+        id: [name, Validators.required],
         revealOrder: [
           Object.values(this.form().value).reduce(
             (max, fact) => Math.max(max, fact?.revealOrder ?? -1),
@@ -91,8 +65,10 @@ export class ShipLogEditorComponent {
         read: [false, Validators.required],
       }),
     )
-    this.newFact.set('')
   }
 
   protected readonly Object = Object
+  protected readonly Origin = Origin
+  protected readonly ShipLogFacts = new Map(Object.entries(ShipLogFacts))
+  protected readonly shipLogFactIDs = Object.keys(ShipLogFacts)
 }

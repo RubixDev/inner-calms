@@ -5,6 +5,7 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <code>{{ key }}</code>
+            &nbsp;<span class="hint">{{ ShipLogFacts.get(key) ?? Origin.UNKNOWN }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
 
@@ -13,24 +14,10 @@
     }
   </mat-accordion>
 
-  <div>
-    <mat-form-field>
-      <mat-label>New Fact</mat-label>
-      <input
-        matInput
-        [(ngModel)]="newFact"
-        [ngModelOptions]="{ standalone: true }"
-        type="text"
-        [matAutocomplete]="newFactAutocomplete"
-      />
-      <mat-autocomplete #newFactAutocomplete="matAutocomplete">
-        @for (option of (filteredFacts$ | async) ?? []; track option) {
-          <mat-option [value]="option">{{ option }}</mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-    <button type="button" matButton [disabled]="addFactDisabled$ | async" (click)="addFact()">
-      Add<mat-icon>add</mat-icon>
-    </button>
-  </div>
+  <app-add-to-record
+    label="New Fact"
+    [suggestions]="shipLogFactIDs"
+    [form]="form()"
+    (add)="addFact($event)"
+  />
 </fieldset>

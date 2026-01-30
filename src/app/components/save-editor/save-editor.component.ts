@@ -87,7 +87,6 @@ export class SaveEditorComponent {
           .map(key => [key, false]),
       ),
     ) as AbstractControl<Record<number, boolean>>,
-    // TODO: is there a way to do this type safely?
     dictConditions: this.fb.nonNullable.record<boolean>(
       Object.fromEntries(Object.keys(KnownConditions).map(key => [key, false])),
     ) as AbstractControl<Record<string, boolean>>,
