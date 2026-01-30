@@ -4,10 +4,26 @@
   <!-- <input matInput formControlName="id" type="text" /> -->
   <!-- </mat-form-field> -->
 
-  <mat-form-field>
-    <mat-label>Reveal order <app-code-hint msg="revealOrder" /></mat-label>
-    <input matInput formControlName="revealOrder" type="number" step="1" />
-  </mat-form-field>
+  <div>
+    <mat-form-field>
+      <mat-label>Reveal order <app-code-hint msg="revealOrder" /></mat-label>
+      <input matInput formControlName="revealOrder" type="number" step="1" />
+    </mat-form-field>
+
+    @if ((form().value.revealOrder ?? -1) >= 0) {
+      <button type="button" matButton="elevated" (click)="form().patchValue({ revealOrder: -1 })">
+        Hide <mat-icon>visibility_off</mat-icon>
+      </button>
+    } @else {
+      <button
+        type="button"
+        matButton="elevated"
+        (click)="form().patchValue({ revealOrder: nextRevealNumber() })"
+      >
+        Reveal <mat-icon>visibility</mat-icon>
+      </button>
+    }
+  </div>
 
   <mat-slide-toggle formControlName="newlyRevealed">
     Newly revealed <app-code-hint msg="newlyRevealed" />

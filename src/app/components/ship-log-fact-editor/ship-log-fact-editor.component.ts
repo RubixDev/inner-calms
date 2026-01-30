@@ -26,6 +26,7 @@ import { MatButtonModule } from '@angular/material/button'
 })
 export class ShipLogFactEditorComponent {
   readonly form = input.required<FormGroup<WithFormControls<ShipLogFactSave>>>()
+  readonly nextRevealNumber = input.required<number>()
 
   readonly delete = output()
 }

@@ -12,7 +12,11 @@
           </mat-panel-description>
         </mat-expansion-panel-header>
 
-        <app-ship-log-fact-editor [form]="getFormGroup(key)" (delete)="form().removeControl(key)" />
+        <app-ship-log-fact-editor
+          [form]="getFormGroup(key)"
+          [nextRevealNumber]="nextRevealNumber()"
+          (delete)="form().removeControl(key)"
+        />
       </mat-expansion-panel>
     }
   </mat-accordion>

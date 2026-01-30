@@ -49,18 +49,21 @@ export class ShipLogEditorComponent {
     return this.form().get(key) as FormGroup<WithFormControls<ShipLogFactSave>>
   }
 
+  protected nextRevealNumber(): number {
+    return (
+      Object.values(this.form().value).reduce(
+        (max, fact) => Math.max(max, fact?.revealOrder ?? -1),
+        -1,
+      ) + 1
+    )
+  }
+
   protected addFact(name: string) {
     this.form().addControl(
       name,
       this.fb.nonNullable.group({
         id: [name, Validators.required],
-        revealOrder: [
-          Object.values(this.form().value).reduce(
-            (max, fact) => Math.max(max, fact?.revealOrder ?? -1),
-            -1,
-          ) + 1,
-          Validators.required,
-        ],
+        revealOrder: [this.nextRevealNumber(), Validators.required],
         newlyRevealed: [false, Validators.required],
         read: [false, Validators.required],
       }),
