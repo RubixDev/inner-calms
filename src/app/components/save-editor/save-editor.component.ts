@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import {
   DeathType,
   SaveFile,
@@ -28,23 +28,15 @@ import { MatExpansionModule } from '@angular/material/expansion'
 import { saveAs } from 'file-saver'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { ShipLogFacts } from '../../model/ship-log.model'
-import {
-  combineLatest,
-  combineLatestWith,
-  distinctUntilChanged,
-  filter,
-  map,
-  pairwise,
-  startWith,
-} from 'rxjs'
+import { combineLatestWith, distinctUntilChanged, filter, map, pairwise, startWith } from 'rxjs'
 import { AsyncPipe } from '@angular/common'
 import { KnownConditions } from '../../model/persistent-conditions.model'
 import { Origin } from '../../model/origin.model'
-import { toObservable } from '@angular/core/rxjs-interop'
 import { CodeHintComponent } from '../code-hint/code-hint.component'
 import { ShipLogEditorComponent } from '../ship-log-editor/ship-log-editor.component'
 import { ControlConfigs, WithFormControls } from '../../util'
 import { KnownSignalsEditorComponent } from '../known-signals-editor/known-signals-editor.component'
+import { PersistentConditionsEditorComponent } from '../persistent-conditions-editor/persistent-conditions-editor.component'
 
 @Component({
   selector: 'app-save-editor',
@@ -52,6 +44,7 @@ import { KnownSignalsEditorComponent } from '../known-signals-editor/known-signa
     AsyncPipe,
     CodeHintComponent,
     FormsModule,
+    KnownSignalsEditorComponent,
     MatAutocompleteModule,
     MatButtonModule,
     MatExpansionModule,
@@ -60,9 +53,9 @@ import { KnownSignalsEditorComponent } from '../known-signals-editor/known-signa
     MatInputModule,
     MatSelectModule,
     MatSlideToggleModule,
+    PersistentConditionsEditorComponent,
     ReactiveFormsModule,
     ShipLogEditorComponent,
-    KnownSignalsEditorComponent,
   ],
   templateUrl: './save-editor.component.html',
   styleUrl: './save-editor.component.scss',
@@ -135,24 +128,6 @@ export class SaveEditorComponent {
       FormGroup<WithFormControls<ShipLogFactSave>>
     >
   }
-
-  protected readonly newCondition = signal('')
-  protected readonly currentConditionKeys$ = this.dictConditions.valueChanges.pipe(
-    startWith(this.dictConditions.value),
-    map(v => Object.keys(v)),
-    distinctUntilChanged(),
-  )
-  protected readonly filteredConditions$ = combineLatest([
-    toObservable(this.newCondition),
-    this.currentConditionKeys$,
-  ]).pipe(
-    map(([newCondition, keys]) =>
-      // suggest matching known condition keys that don't have controls yet
-      Object.keys(KnownConditions).filter(
-        key => key.toLowerCase().includes(newCondition.toLowerCase()) && !keys.includes(key),
-      ),
-    ),
-  )
 
   get knownSignals() {
     return this.form.get('knownSignals') as FormRecord<FormControl<boolean>>
@@ -265,8 +240,4 @@ export class SaveEditorComponent {
     ['Hide and Seek'],
     ['Deep Space Radio'],
   ]
-
-  protected readonly KnownConditions = new Map(Object.entries(KnownConditions))
-  protected readonly Object = Object
-  protected readonly Origin = Origin
 }

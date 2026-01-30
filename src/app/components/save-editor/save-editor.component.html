@@ -75,58 +75,7 @@
         /></mat-panel-title>
       </mat-expansion-panel-header>
 
-      <fieldset formGroupName="dictConditions">
-        @for (key of Object.keys(dictConditions.controls); track key) {
-          <div>
-            <mat-slide-toggle [formControlName]="key">
-              @let info = KnownConditions.get(key) ?? [Origin.UNKNOWN, null];
-              @if (info[1] !== null) {
-                {{ info[1] }}
-                <app-code-hint msg="{{ key }}" />
-              } @else {
-                {{ key }}
-              }
-              <br />
-              <span class="hint">{{ info[0] }}</span>
-            </mat-slide-toggle>
-            <button type="button" matIconButton (click)="dictConditions.removeControl(key)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        }
-
-        <div>
-          <mat-form-field>
-            <mat-label>New Condition</mat-label>
-            <input
-              matInput
-              [(ngModel)]="newCondition"
-              [ngModelOptions]="{ standalone: true }"
-              type="text"
-              [matAutocomplete]="newConditionAutocomplete"
-            />
-            <mat-autocomplete #newConditionAutocomplete="matAutocomplete">
-              @for (option of (filteredConditions$ | async) ?? []; track option) {
-                <mat-option [value]="option">{{ option }}</mat-option>
-              }
-            </mat-autocomplete>
-          </mat-form-field>
-          <button
-            type="button"
-            matButton
-            [disabled]="
-              newCondition() === '' ||
-              (this.currentConditionKeys$ | async)?.includes(newCondition())
-            "
-            (click)="
-              dictConditions.addControl(newCondition(), fb.nonNullable.control(false));
-              newCondition.set('')
-            "
-          >
-            Add<mat-icon>add</mat-icon>
-          </button>
-        </div>
-      </fieldset>
+      <app-persistent-conditions-editor [form]="dictConditions" />
     </mat-expansion-panel>
 
     <mat-expansion-panel>

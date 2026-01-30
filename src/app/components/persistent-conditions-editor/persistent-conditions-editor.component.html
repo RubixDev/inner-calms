@@ -1,0 +1,27 @@
+<fieldset [formGroup]="form()">
+  @for (key of Object.keys(form().controls); track key) {
+    <div>
+      <mat-slide-toggle [formControlName]="key">
+        @let info = KnownConditions.get(key) ?? [Origin.UNKNOWN, null];
+        @if (info[1] !== null) {
+          {{ info[1] }}
+          <app-code-hint msg="{{ key }}" />
+        } @else {
+          {{ key }}
+        }
+        <br />
+        <span class="hint">{{ info[0] }}</span>
+      </mat-slide-toggle>
+      <button type="button" matIconButton (click)="form().removeControl(key)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  }
+
+  <app-add-to-record
+    label="New Condition"
+    [suggestions]="knownConditionKeys"
+    [form]="form()"
+    (add)="form().addControl($event, fb.nonNullable.control(false))"
+  />
+</fieldset>
